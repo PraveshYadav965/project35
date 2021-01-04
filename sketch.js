@@ -1,82 +1,63 @@
-var database,foodStock,dog,dogImage,dogImage1,dog1;
-var food;
-var gameState = "end";
+var dog,dogimg,dogHappy,foodStock,foods;
+var database;
+var food1;
 
+function preload(){
+dogimg = loadImage("images/dogImg.png");
+dogHappy = loadImage("images/dogImg1.png");
 
-function preload()
-{
-  
-  dogImage = loadImage("images/dogImg.png");
-  dogImage2 = loadImage("images/dogImg1.png");  
 }
 
-function setup()
-{
- database=firebase.database();
-  console.log(database);
-
+function setup() {
   createCanvas(800, 700);
-
-  dog = createSprite(650,350,20,20);
-  dog.addImage("hello",dogImage);
+  
+  
+  dog = createSprite(400,500,50,50);
+  dog.addImage(dogimg);
   dog.scale = 0.3;
 
-  dog1 = createSprite(650,350,20,20);
-  dog1.addImage("he4llo",dogImage2);
-  dog1.scale = 0.3;
-
+  database = firebase.database();
   
+  foodStock = database.ref('Food');
+  foodStock.on("value",readStock);
 
-
-  foodStock=database.ref('Food'); 
-  foodStock.on("value",readStock); 
-  
+ 
+ 
 }
 
 
-function draw() 
-{  
-  background(46, 139, 87);
-  if (keyDown(UP_ARROW)&&gameState ==="end") {
-   
-    dog.visible = false;
-    dog1.visible = true;
- 
-
-    writeStock(food);
-  } else{
-    
-    dog1.visible = false;
-    dog.visible = true;
-    gameState=== "false";
+function draw() {
+  background(46,139,87); 
+  
+  if (keyWentDown(UP_ARROW)){
+    writeStock(foods);
+    dog.addImage(dogHappy);
   }
 
-
-push();
-  textSize(30);
-  fill(0);
-  text (" score : " + food,50,50);
-pop();
+  if (keyWentUp(UP_ARROW)){
+    dog.addImage(dogimg);
+  }
 
   drawSprites();
- 
 
-}
-function readStock(data)
-{
+  textSize(30);
+  text("food remaining: "+foods,300,250);
+  text("press the up arrow key to feed the dog",250,150);
   
-    food=data.val();
-    console.log(food);
-   
 }
-function writeStock(x) 
-{
-    
-    if (x <= 0) {
-      x = 20;
-    } else {
-      x = x-1;
-    }
-    database.ref('/').update({
-    Food : x,});
+
+function readStock(data){
+  foods = data.val();
+}
+
+function writeStock(x){
+  if (x<=0){
+    x = 0;
+  }
+  else{
+    x=x-1;
+  }
+  database.ref('/').update({
+    Food:x
+  });
 }
